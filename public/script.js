@@ -215,7 +215,7 @@ function startGame() {
     if (paddleX[paddleIndex] > width - paddleWidth) {
       paddleX[paddleIndex] = width - paddleWidth;
     }
-    socket.emit('paddleMode', {
+    socket.emit('paddleMove', {
       xPosition: paddleX[paddleIndex],
     });
     // Hide Cursor

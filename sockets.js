@@ -6,14 +6,14 @@ function listen(io) {
       console.log('Player ready', socket.id);
       readyPlayerCount++;
       if (readyPlayerCount % 2 === 0) {
-        io.emit('startGame', socket.id);
+        io.emit('startGame', socket.id); // to all connected clients
       }
     });
     socket.on('paddleMove', (paddleData) => {
-      socket.broadcast.emit('paddleMove', paddleData);
+      socket.broadcast.emit('paddleMove', paddleData); // except the sender
     });
     socket.on('ballMove', (ballData) => {
-      socket.broadcast.emit('ballMove', ballData);
+      socket.broadcast.emit('ballMove', ballData); // except the sender
     });
     socket.on('disconnect', (reason) => {
       console.log(`Client ${socket.id} disconnected: ${reason}`);
