@@ -18,8 +18,20 @@ app.get('/', (req, res) => {
 const server = createServer(app);
 const io = new Server(server);
 
+let readyPlayerCount = 0;
+
 io.on('connection', (socket) => {
   console.log('a user connected', socket.id);
+  socket.on('ready', () => {
+    console.log('Player ready', socket.id);
+    readyPlayerCount++;
+    if (readyPlayerCount === 2) {
+      io.emit('startGame', socket.id);
+    }
+  });
+  socket.on('paddleMove', (paddleData) => {
+    socket.broadcast.emit('paddleMove', paddleData);
+  });
 });
 
 server.listen(PORT, () => {
