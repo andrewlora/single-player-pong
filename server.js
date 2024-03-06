@@ -1,45 +1,13 @@
-const express = require('express');
-const cors = require('cors');
 const { createServer } = require('node:http');
-const { join } = require('node:path');
 const { Server } = require('socket.io');
+const sockets = require('./sockets');
+const apiServer = require('./api');
 const PORT = 3000;
-const app = express();
-app.use(express.static(join(__dirname, '/public')));
-app.use(
-  cors({
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-  }),
-);
-app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, '/public', 'index.html'));
-});
-const server = createServer(app);
-const io = new Server(server);
+const httpServer = createServer(apiServer);
+const socketServer = new Server(httpServer);
 
-let readyPlayerCount = 0;
-
-io.on('connection', (socket) => {
-  console.log('a user connected', socket.id);
-  socket.on('ready', () => {
-    console.log('Player ready', socket.id);
-    readyPlayerCount++;
-    if (readyPlayerCount % 2 === 0) {
-      io.emit('startGame', socket.id);
-    }
-  });
-  socket.on('paddleMove', (paddleData) => {
-    socket.broadcast.emit('paddleMove', paddleData);
-  });
-  socket.on('ballMove', (ballData) => {
-    socket.broadcast.emit('ballMove', ballData);
-  });
-  socket.on('disconnect', (reason) => {
-    console.log(`Client ${socket.id} disconnected: ${reason}`);
-  });
-});
-
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`server running at http://localhost:${PORT}`);
 });
+
+sockets.listen(socketServer);
